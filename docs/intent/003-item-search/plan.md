@@ -38,6 +38,10 @@
 
 - Full-text search, ranking, highlighting, searching other users' items as a normal user.
 
+## Decisions during build
+
+- GH-8 (2026-10-22, Carlos Reyes): Should search match the title only, or the title and the description? → Title and description.
+
 ## Tickets
 <!-- filled by /to-tickets -->
 - GH-8 https://github.com/carlos-reyes-le-paliscot/claude-code-bootcamp-factory/issues/8
