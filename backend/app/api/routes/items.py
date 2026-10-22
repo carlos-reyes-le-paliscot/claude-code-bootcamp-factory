@@ -1,8 +1,8 @@
 import uuid
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException
-from sqlmodel import col, func, select
+from fastapi import APIRouter, HTTPException, Query
+from sqlmodel import col, func, or_, select
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep
@@ -11,36 +11,43 @@ from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, Me
 router = APIRouter(prefix="/items", tags=["items"])
 
 
+def search_filter(q: str) -> Any:
+    """Case-insensitive substring match on title or description; `%` and `_` match literally."""
+    escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    pattern = f"%{escaped}%"
+    return or_(
+        col(Item.title).ilike(pattern, escape="\\"),
+        col(Item.description).ilike(pattern, escape="\\"),
+    )
+
+
 @router.get("/", response_model=ItemsPublic)
 def read_items(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
+    q: Annotated[str | None, Query(max_length=100)] = None,
 ) -> Any:
     """
-    Retrieve items.
+    Retrieve items, optionally narrowed to those whose title or description contains `q`.
     """
+    filters = []
+    if not current_user.is_superuser:
+        filters.append(Item.owner_id == current_user.id)
+    if q and q.strip():
+        filters.append(search_filter(q.strip()))
 
-    if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Item)
-        count = session.exec(count_statement).one()
-        statement = (
-            select(Item).order_by(col(Item.created_at).desc()).offset(skip).limit(limit)
-        )
-        items = session.exec(statement).all()
-    else:
-        count_statement = (
-            select(func.count())
-            .select_from(Item)
-            .where(Item.owner_id == current_user.id)
-        )
-        count = session.exec(count_statement).one()
-        statement = (
-            select(Item)
-            .where(Item.owner_id == current_user.id)
-            .order_by(col(Item.created_at).desc())
-            .offset(skip)
-            .limit(limit)
-        )
-        items = session.exec(statement).all()
+    count_statement = select(func.count()).select_from(Item).where(*filters)
+    count = session.exec(count_statement).one()
+    statement = (
+        select(Item)
+        .where(*filters)
+        .order_by(col(Item.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    items = session.exec(statement).all()
 
     items_public = [ItemPublic.model_validate(item) for item in items]
     return ItemsPublic(data=items_public, count=count)
