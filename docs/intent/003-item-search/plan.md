@@ -40,3 +40,5 @@
 
 ## Tickets
 <!-- filled by /to-tickets -->
+- GH-8 https://github.com/carlos-reyes-le-paliscot/claude-code-bootcamp-factory/issues/8
+- GH-9 https://github.com/carlos-reyes-le-paliscot/claude-code-bootcamp-factory/issues/9 (blocked by GH-8)
