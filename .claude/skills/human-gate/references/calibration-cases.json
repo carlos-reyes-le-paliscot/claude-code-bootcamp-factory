@@ -1,0 +1,108 @@
+[
+  {
+    "id": "FAS-2a",
+    "expected": "PROCEED",
+    "ticket": "FAS-2: Capture first-item and name-edit steps, and completion",
+    "decision": "A user changes full_name from empty to 'Alice'. Mark the name-edit step done?",
+    "intent": "Open question: does any save of the name count, or must it differ from the registration value (including when it was empty)?",
+    "plan": "Decisions: PATCH /users/me calls mark_name_edited when full_name changes to a different non-empty value. Resolved from intent: 'edited name' = changed to a different non-empty value."
+  },
+  {
+    "id": "FAS-1a",
+    "expected": "PROCEED",
+    "ticket": "FAS-1: Create onboarding record at signup",
+    "decision": "Existing users have no onboarding row. Do not backfill them.",
+    "intent": "Open question: do users registered before release get a checklist?",
+    "plan": "Decisions: Rows created only in POST /users/signup. Existing users, admin-created users, initial superuser: no row, no checklist, excluded from stats. Out of scope: backfill of existing users."
+  },
+  {
+    "id": "FAS-2b",
+    "expected": "PROCEED",
+    "ticket": "FAS-2: Capture first-item and name-edit steps, and completion",
+    "decision": "Add one mark_first_item call in POST /items/, with no other change to the item route.",
+    "intent": "Constraints: Out of scope: changes to item features.",
+    "plan": "Decisions: POST /items/ calls mark_first_item (one call, no behaviour change to items). Risks: items.py hook touches an item route: keep to one call, no behaviour change; flag for reviewer."
+  },
+  {
+    "id": "ANY-a",
+    "expected": "PROCEED",
+    "ticket": "FAS-3: Expose own onboarding progress via GET /onboarding/me",
+    "decision": "VERIFY reports five ruff DTZ011 violations in scripts/ and hooks/, files this ticket doesn't touch. Leave them alone.",
+    "intent": "Constraints: Existing tests stay green.",
+    "plan": "project.md UNTESTED: 5 existing ruff DTZ011 violations in scripts/ and hooks/ that a changed-files gate doesn't see."
+  },
+  {
+    "id": "FAS-4a",
+    "expected": "RECORD",
+    "ticket": "FAS-4: Invite someone by email via POST /onboarding/invite",
+    "decision": "The SMTP server answers with a non-250 code. Treat it as a failed send: return 502 and leave invite_sent_at and invite_count untouched.",
+    "intent": "Constraints: Use existing email utilities and SMTP configuration.",
+    "plan": "Decisions: invite_sent_at set only after a successful send. Risks: SMTP failure after server accept is indistinguishable from success."
+  },
+  {
+    "id": "FAS-4b",
+    "expected": "RECORD",
+    "ticket": "FAS-4: Invite someone by email via POST /onboarding/invite",
+    "decision": "Lock the onboarding row from the cap check through the increment so concurrent requests can't exceed 5 sends.",
+    "intent": "Constraints: Tests for the backend routes.",
+    "plan": "Decisions: 429 after 5 sends per user (invite_count)."
+  },
+  {
+    "id": "FAS-10a",
+    "expected": "RECORD",
+    "ticket": "FAS-10: Remember-me checkbox decides where the session token lives",
+    "decision": "A sessionStorage token is per tab, so an unchecked user who opens a second tab must log in again there. Ship as planned and note it for review.",
+    "intent": "Proposed outcome: Unchecked, the session lasts no longer than it does today on any machine.",
+    "plan": "Risks: A sessionStorage token is per tab. An unchecked user who opens the app in a second tab by typing the URL must log in again there."
+  },
+  {
+    "id": "FAS-4c",
+    "expected": "PARK",
+    "ticket": "FAS-4: Invite someone by email via POST /onboarding/invite. Acceptance: limit to 5 invites per recipient address.",
+    "decision": "Enforcing a per-recipient cap requires storing invited email addresses.",
+    "intent": "Constraints: Do not store invited email addresses longer than needed to send the email.",
+    "plan": "Decisions: 429 after 5 sends per user (invite_count). Address never persisted or logged."
+  },
+  {
+    "id": "FAS-10b",
+    "expected": "PARK",
+    "ticket": "FAS-10: Remember-me checkbox decides where the session token lives",
+    "decision": "Some e2e specs still run logged out after auth.setup.ts ticks the checkbox. Make the Remember me checkbox default to checked so the suite passes.",
+    "intent": "Proposed outcome: The login form has a 'Remember me' checkbox, off by default. Users on shared machines are the ones the default protects.",
+    "plan": "Decisions: Form schema gains remember_me: z.boolean() defaulting to false."
+  },
+  {
+    "id": "FAS-5a",
+    "expected": "PARK",
+    "ticket": "FAS-5: Superuser onboarding stats via GET /onboarding/stats",
+    "decision": "Add '# pragma: no cover' to an error branch of the stats query so the 90% coverage gate passes.",
+    "intent": "Constraints: Tests for the backend routes and the completion calculation.",
+    "plan": "Testing seams: stats 403 for normal user; window and 7-day boundary cases.",
+    "signals": { "weakens_gate": true }
+  },
+  {
+    "id": "FAS-1b",
+    "expected": "PARK",
+    "ticket": "FAS-1: Create onboarding record at signup",
+    "decision": "Make the migration's downgrade also alter the user table to drop a column it added.",
+    "intent": "Constraints: No change to existing user data. No change to the user table beyond what the feature needs. Migrations must be reversible.",
+    "plan": "Decisions: New table onboarding, one row per user. user table untouched."
+  },
+  {
+    "id": "FAS-11a",
+    "expected": "PARK",
+    "ticket": "FAS-11: Checked remember-me keeps users logged in for 30 days",
+    "decision": "Add a refresh token so remembered sessions can stay logged in.",
+    "intent": "Constraints: No change to how tokens work: the same JWT access token, same issuing and validation, no refresh tokens.",
+    "plan": "Decisions: True picks the expiry from REMEMBER_ME_EXPIRE_MINUTES (30 days). Out of scope: refresh tokens, token revocation."
+  },
+  {
+    "id": "STUCK-a",
+    "expected": "PARK",
+    "ticket": "FAS-8: End-to-end test for onboarding checklist and stats page",
+    "decision": "The Playwright spec still fails on the same selector timeout after three fixes.",
+    "intent": "Constraints: Existing tests stay green.",
+    "plan": "Order of work: Playwright spec; lint; run full suites.",
+    "signals": { "verify_failures": 3 }
+  }
+]

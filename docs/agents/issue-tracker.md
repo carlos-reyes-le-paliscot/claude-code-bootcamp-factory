@@ -39,6 +39,7 @@ Create these once per repo. Adding a label that doesn't exist yet to an issue al
 | `ready-for-agent` | `build` may pick the ticket up. |
 | `status:in-progress` | An implementer has the ticket. |
 | `status:in-review` | The ticket is on the intent's PR. |
+| `needs-human` | Parked by `human-gate`. The question is the latest comment. Never set together with `ready-for-agent`. |
 
 ## Ticket states
 
@@ -60,3 +61,12 @@ the labels above. Then add its "blocked by" dependencies.
 ## When a skill says "fetch the relevant ticket"
 
 Read the issue with its comments, its labels, and its `blocked_by` dependencies.
+
+## When a skill says "park a ticket"
+
+Used by `human-gate` when a decision needs a human and nobody is answering inline.
+
+1. Comment the decision request on the issue (format: `.claude/skills/human-gate/references/decision-request.md`).
+2. Remove `ready-for-agent` and any `status:` label, then add `needs-human`. The ticket is back in Todo.
+
+To resume, a human answers in a comment, removes `needs-human` and re-adds `ready-for-agent`.
