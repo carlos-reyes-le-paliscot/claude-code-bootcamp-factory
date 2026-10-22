@@ -13,6 +13,8 @@ Work is tracked in Linear, through the Linear MCP server. Team and labels come f
   with `<LINEAR_TEAM>-<n>:`, and PRs close tickets with `Closes <LINEAR_TEAM>-<n>` lines.
 - Every ticket carries `ready-for-agent` and `REPO_LABEL`. Remove `ready-for-agent` to hold a
   ticket back from `build`.
+- `needs-human` marks a ticket the `human-gate` skill parked: its question is the latest comment.
+  It never carries `ready-for-agent` at the same time.
 - Blocking is a real Linear "blocked by" relation, never prose. `build` reads the relations to
   find what is unblocked.
 
@@ -34,3 +36,13 @@ Create the issue in team `LINEAR_TEAM`, in the intent's project, with the `to-ti
 ## When a skill says "fetch the relevant ticket"
 
 Read the issue with its comments and its blocking relations.
+
+## When a skill says "park a ticket"
+
+Used by `human-gate` when a decision needs a human and nobody is answering inline.
+
+1. Comment the decision request on the ticket (format: `.claude/skills/human-gate/references/decision-request.md`).
+2. Remove `ready-for-agent`, add `needs-human`.
+3. Set the state to Todo.
+
+To resume, a human answers in a comment, removes `needs-human` and re-adds `ready-for-agent`.
