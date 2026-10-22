@@ -46,9 +46,48 @@ reviewer"), the plan already accepted it, so it goes to the PR review list. It i
 
 ## Step 2: classify the decision
 
-Check the triggers in order. The first one that matches decides the outcome.
+Classification runs in two passes, following Kahneman's System 1 and System 2.
 
-### PARK: stop the ticket and ask
+### 2a. System 1: Jev's fast pass
+
+TypeSafe's **Jev** is a "System One" decision model. It answers typed yes/no questions about a
+state with probabilities in one call of a few hundred milliseconds, and it generates no text. Write
+the decision to a JSON file and run:
+
+```sh
+python3 .claude/skills/human-gate/scripts/system1.py decision.json
+```
+
+The file looks like
+`{"ticket", "decision", "intent", "plan", "signals": {"verify_failures", "weakens_gate"}}`.
+`intent` and `plan` hold the lines you quoted in Step 1, not the whole documents. `decision` is two
+or three sentences describing the choice you're about to make. Set `weakens_gate` when your diff
+skips or deletes a test, loosens an assertion, adds a suppression comment, or lowers coverage.
+
+The script returns a `route`:
+
+| `route` | Meaning | What you do |
+| --- | --- | --- |
+| `proceed` | Settled by the ticket or plan (≥ 0.80), and every trigger below 0.15 | PROCEED. Skip 2b. |
+| `record` | Reversible and local (≥ 0.80), and every trigger below 0.15 | RECORD. Skip 2b, and note "System 1" in the assumption. |
+| `deliberate` | Any trigger ≥ 0.30, no confident fast path, a deterministic trigger (stuck, weakening the gate), or Jev unavailable | Run 2b. |
+
+Jev **never parks a ticket and never talks to a human**. It only lets clear cases skip deliberation,
+and it is tuned so that escalating too often is the cheap mistake. When `JEV_API_KEY` is unset, or
+the call fails or times out (3 s), the route is `deliberate`. The gate then works exactly as it does
+without Jev. Skip 2a entirely when `HUMAN_GATE_SYSTEM1` in `project.md` is `off`.
+
+Before trusting the thresholds on a new repo or a new Jev model, run
+`python3 .claude/skills/human-gate/scripts/system1.py --eval`. It routes every case in
+[references/calibration-cases.json](references/calibration-cases.json) and fails if any PARK case
+gets a fast path. Add a case to that file whenever a human overturns a gate decision.
+
+### 2b. System 2: deliberate
+
+Apply the rules below yourself. When 2a escalated, start from the triggers it named. Check the
+triggers in order. The first one that matches decides the outcome.
+
+#### PARK: stop the ticket and ask
 
 Park only when **no path stays inside the intent and plan**, or when the paths differ in an outcome
 a human owns. If a compliant path exists, take it and record it instead.
@@ -77,7 +116,7 @@ a human owns. If a compliant path exists, take it and record it instead.
 7. **Stuck.** VERIFY has failed three times on the same root cause and you no longer have a
    hypothesis worth testing.
 
-### RECORD: proceed, and leave a trace for review
+#### RECORD: proceed, and leave a trace for review
 
 Proceed, and record the assumption (Step 4), when the decision is outside the plan's text, but:
 
@@ -93,7 +132,7 @@ Typical cases:
 - A test fixture adjustment confined to the ticket's tests.
 - A diff that depends on an `UNTESTED` area.
 
-### PROCEED: nothing to record
+#### PROCEED: nothing to record
 
 The ticket, the plan, or prior art in the code settles it. Carry on without logging anything.
 

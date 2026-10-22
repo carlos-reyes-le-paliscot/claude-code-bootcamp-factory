@@ -9,6 +9,7 @@ HUMAN_GATE
 ticket: GH-<n>
 trigger: <constraint-pressure | open-question | outcome-fork | plan-contradiction | high-blast | weakening-gate | stuck>
 branch: feat/gh-<n>-<slug>   (WIP commit: <sha> | none)
+system1: <route and the reasons system1.py returned, e.g. "deliberate: high_blast=0.71" | off | unavailable>
 questions:
   - question: <one sentence, ends with ?>
     why_human: "<quoted intent/plan line>" (intent.md § Constraints)
