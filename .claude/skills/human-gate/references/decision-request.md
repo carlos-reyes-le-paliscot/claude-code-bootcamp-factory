@@ -6,9 +6,9 @@ An implementer that parks a ticket ends its run with exactly this block, and not
 
 ```
 HUMAN_GATE
-ticket: FAS-<n>
+ticket: GH-<n>
 trigger: <constraint-pressure | open-question | outcome-fork | plan-contradiction | high-blast | weakening-gate | stuck>
-branch: feat/fas-<n>-<slug>   (WIP commit: <sha> | none)
+branch: feat/gh-<n>-<slug>   (WIP commit: <sha> | none)
 questions:
   - question: <one sentence, ends with ?>
     why_human: "<quoted intent/plan line>" (intent.md § Constraints)
@@ -17,7 +17,7 @@ questions:
         consequence: <what happens, what it costs>
       - label: <…>
         consequence: <…>
-blocked: <what can't proceed: this ticket, and FAS-x/FAS-y through blocking relations>
+blocked: <what can't proceed: this ticket, and GH-x/GH-y through blocking relations>
 continues: <what the factory can still do without the answer>
 ```
 
@@ -25,7 +25,7 @@ continues: <what the factory can still do without the answer>
 
 Map each `questions` entry to one question:
 
-- `header`: the ticket id, e.g. `FAS-10`
+- `header`: the ticket id, e.g. `GH-10`
 - `question`: the question, followed by the quoted why-line
 - `options`: the labels and consequences, keeping "(Recommended)" on the first
 

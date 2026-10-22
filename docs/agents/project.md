@@ -6,8 +6,8 @@
 
 | Key | Value | Notes |
 | --- | --- | --- |
-| `LINEAR_TEAM` | `FAS` | Linear team key. Tickets are `ABC-<n>`, branches `feat/abc-<n>-<slug>`. |
-| `REPO_LABEL` | `repo:fastapi-template` | Linear label for this repo's tickets. Needed when one intent spans several repos. |
+| `ISSUE_REPO` | `carlos-reyes-le-paliscot/claude-code-bootcamp-factory` | GitHub repo whose Issues hold the tickets. Tickets are `GH-<n>`, branches `feat/gh-<n>-<slug>`. |
+| `REPO_LABEL` | `—` | Label for this repo's tickets. Needed only when `ISSUE_REPO` holds tickets for several code repos. |
 | `INTENT_HOME` | `this repo` | Where `docs/intent/` lives: `this repo`, or `owner/repo` for a shared home. |
 | `SETUP` | `uv sync --all-packages && bun install --frozen-lockfile` | Installs dependencies in a fresh worktree. Idempotent; must not write `.git/config` or `.git/hooks`. |
 | `VERIFY` | `uv run prek run --from-ref origin/master --to-ref HEAD` | The gate. Passes only on exit 0. |

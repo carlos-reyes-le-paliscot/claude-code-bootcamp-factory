@@ -131,10 +131,10 @@ keeping, but **don't merge it into `intent/<NNN-slug>`**.
   "When a skill says park a ticket":
   1. Comment the decision request on the ticket.
   2. Remove `ready-for-agent` (this holds it back from `build`) and add `needs-human`.
-  3. Leave the state at Todo, or move it back to Todo if it was In Progress.
+  3. The ticket is back in the Todo role (see the state table in `issue-tracker.md`).
 
   Then **keep building**: pick the next unblocked ticket. Tickets blocked by the parked one wait
-  through their Linear relations, so no extra bookkeeping is needed.
+  through their "blocked by" dependencies, so no extra bookkeeping is needed.
 
   A human resumes the ticket by answering in a comment, removing `needs-human`, and re-adding
   `ready-for-agent`. The next `build` run reads that comment when it fetches the ticket.
@@ -149,10 +149,10 @@ reviewers can audit what the factory decided on its own:
 
 - **PARK, answered**: add a line under `## Decisions during build` in `plan.md` (create the section
   above `## Tickets` if it's missing), commit it on `intent/<NNN-slug>`, then resume the ticket:
-  `- <TEAM>-<n> (<date>, <who answered>): <question> → <answer>`
+  `- GH-<n> (<date>, <who answered>): <question> → <answer>`
 - **RECORD**: add an "Assumptions" bullet in the ticket's final commit message body, and in the
   intent PR's review list when that PR is opened or updated:
-  `- <TEAM>-<n>: assumed <X> because <intent/plan reason>; reversible by <how>.`
+  `- GH-<n>: assumed <X> because <intent/plan reason>; reversible by <how>.`
 
 ## Calibration
 

@@ -1,7 +1,8 @@
 # Calibration: where the line falls
 
 These cases come from this repo's intents: 001-new-user-onboarding (FAS-1..8) and
-002-remember-me-login (FAS-9..11). Each case gives the situation, the outcome, and the reason.
+002-remember-me-login (FAS-9..11). Each case gives the situation, the outcome, and the reason. The FAS ids are the original Linear
+ticket ids. New tickets are `GH-<n>` issues.
 
 ## PROCEED: already decided
 
